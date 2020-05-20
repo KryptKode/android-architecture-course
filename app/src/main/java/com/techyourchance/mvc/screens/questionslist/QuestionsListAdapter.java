@@ -7,12 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
-import com.techyourchance.mvc.R;
 import com.techyourchance.mvc.questions.Question;
 
-public class QuestionsListAdapter extends ArrayAdapter<Question> {
+public class QuestionsListAdapter extends ArrayAdapter<Question> implements QuestionListItemViewMvc.Listener {
 
     private final OnQuestionClickListener mOnQuestionClickListener;
 
@@ -30,28 +28,22 @@ public class QuestionsListAdapter extends ArrayAdapter<Question> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.layout_question_list_item, parent, false);
+            QuestionListItemViewMvc viewMvc = new QuestionListItemViewMvcImpl(LayoutInflater.from(parent.getContext()), parent);
+            convertView = viewMvc.getRootView();
+            convertView.setTag(viewMvc);
+            viewMvc.registerListener(this);
         }
 
         final Question question = getItem(position);
-
+        QuestionListItemViewMvc viewMvc = (QuestionListItemViewMvc) convertView.getTag();
         // bind the data to views
-        TextView txtTitle = convertView.findViewById(R.id.txt_title);
-        txtTitle.setText(question.getTitle());
-
-        // set listener
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onQuestionClicked(question);
-            }
-        });
+        viewMvc.bindQuestion(question);
 
         return convertView;
     }
 
-    private void onQuestionClicked(Question question) {
+    @Override
+    public void onQuestionClick(Question question) {
         mOnQuestionClickListener.onQuestionClicked(question);
     }
 }
