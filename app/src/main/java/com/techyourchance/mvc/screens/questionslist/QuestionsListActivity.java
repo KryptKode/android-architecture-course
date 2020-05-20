@@ -1,13 +1,6 @@
 package com.techyourchance.mvc.screens.questionslist;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.techyourchance.mvc.R;
@@ -27,22 +20,17 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class QuestionsListActivity extends BaseActivity implements
-        QuestionsListAdapter.OnQuestionClickListener {
+public class QuestionsListActivity extends BaseActivity implements QuestionsListView.Listener {
 
     private StackoverflowApi mStackoverflowApi;
 
-    private ListView mLstQuestions;
-    private QuestionsListAdapter mQuestionsListAdapter;
+    private QuestionsListView viewMvc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_questions_list);
-
-        mLstQuestions = findViewById(R.id.lst_questions);
-        mQuestionsListAdapter = new QuestionsListAdapter(this, this);
-        mLstQuestions.setAdapter(mQuestionsListAdapter);
+        viewMvc = new QuestionsListViewMvc(getLayoutInflater(), null);
+        setContentView(viewMvc.getRootView());
 
         mStackoverflowApi = new Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
@@ -54,7 +42,14 @@ public class QuestionsListActivity extends BaseActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+        viewMvc.registerListener(this);
         fetchQuestions();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        viewMvc.unRegisterListener(this);
     }
 
     private void fetchQuestions() {
@@ -81,9 +76,7 @@ public class QuestionsListActivity extends BaseActivity implements
         for (QuestionSchema questionSchema : questionSchemas) {
             questions.add(new Question(questionSchema.getId(), questionSchema.getTitle()));
         }
-        mQuestionsListAdapter.clear();
-        mQuestionsListAdapter.addAll(questions);
-        mQuestionsListAdapter.notifyDataSetChanged();
+        viewMvc.bindQuestions(questions);
     }
 
     private void networkCallFailed() {
@@ -91,7 +84,7 @@ public class QuestionsListActivity extends BaseActivity implements
     }
 
     @Override
-    public void onQuestionClicked(Question question) {
+    public void onQuestionClick(Question question) {
         Toast.makeText(this, question.getTitle(), Toast.LENGTH_SHORT).show();
     }
 }
