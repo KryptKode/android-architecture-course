@@ -3,32 +3,34 @@ package com.techyourchance.mvc.screens.questionslist;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import com.techyourchance.mvc.questions.Question;
+import com.techyourchance.mvc.screens.common.ViewMvcFactory;
 
 public class QuestionsListAdapter extends ArrayAdapter<Question> implements QuestionListItemViewMvc.Listener {
 
     private final OnQuestionClickListener mOnQuestionClickListener;
+    private ViewMvcFactory viewMvcFactory;
 
     public interface OnQuestionClickListener {
         void onQuestionClicked(Question question);
     }
 
     public QuestionsListAdapter(Context context,
-                                OnQuestionClickListener onQuestionClickListener) {
+                                OnQuestionClickListener onQuestionClickListener, ViewMvcFactory viewMvcFactory) {
         super(context, 0);
         mOnQuestionClickListener = onQuestionClickListener;
+        this.viewMvcFactory = viewMvcFactory;
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
-            QuestionListItemViewMvc viewMvc = new QuestionListItemViewMvcImpl(LayoutInflater.from(parent.getContext()), parent);
+            QuestionListItemViewMvc viewMvc = viewMvcFactory.getQuestionListItemViewMvc(parent);
             convertView = viewMvc.getRootView();
             convertView.setTag(viewMvc);
             viewMvc.registerListener(this);

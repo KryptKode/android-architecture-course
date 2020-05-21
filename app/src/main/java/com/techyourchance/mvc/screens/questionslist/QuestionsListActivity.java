@@ -17,26 +17,19 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class QuestionsListActivity extends BaseActivity implements QuestionsListView.Listener {
 
-    private StackoverflowApi mStackoverflowApi;
+    private StackoverflowApi stackoverflowApi;
 
     private QuestionsListView viewMvc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewMvc = new QuestionsListViewMvc(getLayoutInflater(), null);
+        viewMvc = getCompositionRoot().getViewFactory().getQuestionsListView(null);
         setContentView(viewMvc.getRootView());
-
-        mStackoverflowApi = new Retrofit.Builder()
-                .baseUrl(Constants.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(StackoverflowApi.class);
+        stackoverflowApi = getCompositionRoot().getStackOverflowApi();
     }
 
     @Override
@@ -53,7 +46,7 @@ public class QuestionsListActivity extends BaseActivity implements QuestionsList
     }
 
     private void fetchQuestions() {
-        mStackoverflowApi.fetchLastActiveQuestions(Constants.QUESTIONS_LIST_PAGE_SIZE)
+        stackoverflowApi.fetchLastActiveQuestions(Constants.QUESTIONS_LIST_PAGE_SIZE)
                 .enqueue(new Callback<QuestionsListResponseSchema>() {
                     @Override
                     public void onResponse(Call<QuestionsListResponseSchema> call, Response<QuestionsListResponseSchema> response) {

@@ -8,6 +8,7 @@ import android.widget.ListView;
 import com.techyourchance.mvc.R;
 import com.techyourchance.mvc.questions.Question;
 import com.techyourchance.mvc.screens.common.BaseObservableViewMvc;
+import com.techyourchance.mvc.screens.common.ViewMvcFactory;
 
 import java.util.List;
 
@@ -20,11 +21,11 @@ public class QuestionsListViewMvc extends BaseObservableViewMvc<QuestionsListVie
     private QuestionsListAdapter mQuestionsListAdapter;
 
 
-    public QuestionsListViewMvc(LayoutInflater inflater, @Nullable ViewGroup parent) {
+    public QuestionsListViewMvc(LayoutInflater inflater, @Nullable ViewGroup parent, ViewMvcFactory viewMvcFactory) {
         setRootView(inflater.inflate(R.layout.layout_questions_list, parent, false));
 
         mLstQuestions = findViewById(R.id.lst_questions);
-        mQuestionsListAdapter = new QuestionsListAdapter(getContext(), this);
+        mQuestionsListAdapter = new QuestionsListAdapter(getContext(), this, viewMvcFactory);
         mLstQuestions.setAdapter(mQuestionsListAdapter);
     }
 
